@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  rogue_bot
+
+  Sample SAM Template for rogue_bot
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  RogueBotFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambda_function
+      Handler: lambda_function/app.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy: {"TableName": !Ref DynamoDB}
+        - Statement:
+            - Sid: SNS
+              Effect: Allow
+              Action:
+                - sns:Publish*
+              Resource: !Ref NotifySNS
+      Environment:
+        Variables:
+          SNS: !Ref NotifySNS
+          DYNAMODB: !Ref DynamoDB
+      Events:
+        RogueBot:
+          Type: Schedule
+          Properties:
+            Description: Schedule to run rogue bot!
+            Enabled: True
+            Schedule: 'rate(1 minute)'
+  NotifySNS:
+    Type: AWS::SNS::Topic
+  DynamoDB:
+    Type: AWS::DynamoDB::Table
+    Description: Table to check when the last SNS topic was sent.
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: check
+          AttributeType: S
+      KeySchema:
+        - AttributeName: check
+          KeyType: HASH
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  RogueBotFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt RogueBotFunction.Arn
+  RogueBotFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt RogueBotFunctionRole.Arn
