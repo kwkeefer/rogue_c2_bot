@@ -3,6 +3,7 @@ import requests
 import os
 import boto3
 from datetime import datetime
+import dateutil.parser
 
 SNS_ARN = os.environ['SNS']
 DDB_TABLE = os.environ['DYNAMODB']
@@ -64,15 +65,16 @@ def lambda_handler(event, context):
         print("Product is available!")
         session = boto3.session.Session()
         table = Ddb(session, DDB_TABLE)
-        check = table.get_item(1)
+        check = table.get_item("check")
         if not check:
-            table.update_item(1)
+            table.update_item("check")
             publish_message(session)
         else:
-            now = datetime.utcnow().isoformat()
-            sns_message_last_sent = check['timestamp']
+            now = datetime.now()
+            sns_message_last_sent = dateutil.parser.parse(check['timestamp'])
             time_delta = (now - sns_message_last_sent).total_seconds()
             if time_delta > 3600:
+                print(f"Last message sent {time_delta} seconds ago.")
                 publish_message(session)
             else:
                 print(f"Not sending message.  Last message sent {time_delta} seconds ago.")
