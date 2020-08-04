@@ -8,4 +8,6 @@ This bot scrapes the Rogue website every minute to check whether the Concept2 mo
  
  One can unsubscribe from the SNS topic subscription at any point by clicking the unsubscribe link within each email.
  
-   
+ ### Deployment
+ Use [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-command-reference.html) to build and deploy this application.
+ 
