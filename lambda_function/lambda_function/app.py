@@ -76,6 +76,7 @@ def lambda_handler(event, context):
             if time_delta > 3600:
                 print(f"Last message sent {time_delta} seconds ago.")
                 publish_message(session)
+                table.update_item("check")
             else:
                 print(f"Not sending message.  Last message sent {time_delta} seconds ago.")
     else:
