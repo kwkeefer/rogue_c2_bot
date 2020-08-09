@@ -69,6 +69,7 @@ def lambda_handler(event, context):
         if not check:
             table.update_item("check")
             publish_message(session)
+            print(r.text)
         else:
             now = datetime.now()
             sns_message_last_sent = dateutil.parser.parse(check['timestamp'])
@@ -76,6 +77,7 @@ def lambda_handler(event, context):
             if time_delta > 3600:
                 print(f"Last message sent {time_delta} seconds ago.")
                 publish_message(session)
+                print(r.text)
                 table.update_item("check")
             else:
                 print(f"Not sending message.  Last message sent {time_delta} seconds ago.")
