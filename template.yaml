@@ -35,7 +35,7 @@ Resources:
           Properties:
             Description: Schedule to run rogue bot!
             Enabled: True
-            Schedule: 'rate(1 minute)'
+            Schedule: 'rate(3 minutes)'
   NotifySNS:
     Type: AWS::SNS::Topic
   DynamoDB:
