@@ -48,7 +48,8 @@ def lambda_handler(event, context):
     :param context:
     :return: None
     """
-    r = requests.get("https://www.roguefitness.com/black-concept-2-model-d-rower-pm5")
+    headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0'}
+    r = requests.get("https://www.roguefitness.com/black-concept-2-model-d-rower-pm5", headers=headers)
     soup = BeautifulSoup(r.content, 'html.parser')
 
     def publish_message(session):

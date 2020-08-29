@@ -1,6 +1,6 @@
 # rogue_concept2_bot
 
-This bot scrapes the Rogue website every minute to check whether the Concept2 model D is in stock.
+This bot checks the Rogue website every three minutes to check whether the Concept2 model D is in stock.
  If it is in stock, a message will be sent to an SNS topic.  The SNS topic can have any number of subscribers configured, so that
  an email will be sent when a message is received.
  
