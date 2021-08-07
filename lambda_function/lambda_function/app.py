@@ -7,6 +7,10 @@ import dateutil.parser
 
 SNS_ARN = os.environ['SNS']
 DDB_TABLE = os.environ['DYNAMODB']
+URL = os.environ['URL']
+STRING_TO_SEARCH = os.environ['StringToSearch']
+CLASS_TO_SEARCH = os.environ['ClassToSearch']
+PRODUCT_NAME = os.environ['ProductName']
 
 
 class Ddb:
@@ -48,22 +52,24 @@ def lambda_handler(event, context):
     :param context:
     :return: None
     """
-    headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0'}
-    r = requests.get("https://www.roguefitness.com/black-concept-2-model-d-rower-pm5", headers=headers)
-    soup = BeautifulSoup(r.content, 'html.parser')
+    print(f"Checking to see if {PRODUCT_NAME} is available.")
+    print(URL)
+    s = requests.Session()
+    headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    with s.get(URL, headers=headers, timeout=10, stream=True) as r:
+        soup = BeautifulSoup(r.content, 'html.parser')
 
     def publish_message(session):
         print("Sending message to SNS topic!")
         client = session.client('sns')
         client.publish(
             TopicArn=SNS_ARN,
-            Subject="ROGUE ALERT!  Concept2 in stock!",
-            Message="https://www.roguefitness.com/black-concept-2-model-d-rower-pm5"
+            Subject=f"ALERT!  {PRODUCT_NAME} in stock!",
+            Message=URL
         )
 
-    print("Checking to see if product is available.")
-    if "notified when this product is available" not in str(soup.find(class_='options-container-big')):
-        print("Product is available!")
+    if STRING_TO_SEARCH not in str(soup.find(class_=CLASS_TO_SEARCH)):
+        print(f"{PRODUCT_NAME} is available!")
         session = boto3.session.Session()
         table = Ddb(session, DDB_TABLE)
         check = table.get_item("check")
@@ -83,4 +89,4 @@ def lambda_handler(event, context):
             else:
                 print(f"Not sending message.  Last message sent {time_delta} seconds ago.")
     else:
-        print("Product not available.")
+        print(f"{PRODUCT_NAME} not available.")
